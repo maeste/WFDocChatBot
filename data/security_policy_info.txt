@@ -1,0 +1,24 @@
+This document contains suggestions for improving security configuration for JBoss Enterprise Application Platform (EAP) and WildFly application server.
+
+The use of TLSv1.3 is recommended.
+
+The use of filesystem-realms is recommended.
+
+Using a filesystem-realm instead of a properties-realm is recommended.
+
+When using a filesystem-realm, it's good to enable encryption.
+
+When using a filesystem-realm, it's good to enable integrity checking.
+
+It's better to use a SCRAM SASL mechanism like SCRAM-SHA-512 instead of DIGEST-MD5.
+
+The generate-self-signed-certificate-host key-manager attribute should not be used in a production environment.
+
+When using a credential-reference, it's better to define store and alias attributes instead of specifying a clear-text attribute.
+
+
+
+
+
+
+
