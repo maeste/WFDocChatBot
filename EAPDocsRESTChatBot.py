@@ -6,7 +6,7 @@
 ####################################
 
 ####### TRY WITH BROWSER WITH #########
-## http://127.0.0.1:8000/chat?q="How to configure TLS with CLI?" ###
+## http://127.0.0.1:8000/chat/?q="How to configure TLS with CLI?" ###
 ######################################
 
 import logging
