@@ -101,7 +101,7 @@ def main() :
         data = input("Please enter the message:\n")
         if 'Exit' == data:
             break
-        response = chat_engine.chat("How do I configure TLSv1.3 with elytron?")
+        response = chat_engine.chat(data)
         for source_node in response.source_nodes:
             source_details = "File: " + source_node.metadata['file_name'] + ", Page: " + source_node.metadata['page_label']
     
