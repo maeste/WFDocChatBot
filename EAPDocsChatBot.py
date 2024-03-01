@@ -1,3 +1,4 @@
+import argparse
 import logging
 import sys
 import os
@@ -17,43 +18,23 @@ logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
 docs_dir = os.path.join(os.getcwd(), "docs")
 storage_dir = os.path.join(os.getcwd(), "storage")
 
-def read_documents() :        
+def read_documents(docs_path) :        
     # Create a docs directory to store the downloaded PDF files
     if not os.path.exists(docs_dir):
         os.mkdir(docs_dir)
 
-    # PDFs to be ingested    
-    docs_url_prefix = "https://access.redhat.com/documentation/en-us/red_hat_jboss_enterprise_application_platform/8.0/pdf/"
-    docs = ["introduction_to_red_hat_jboss_enterprise_application_platform/red_hat_jboss_enterprise_application_platform-8.0-introduction_to_red_hat_jboss_enterprise_application_platform-en-us.pdf",
-            "configuring_ssltls_in_jboss_eap/red_hat_jboss_enterprise_application_platform-8.0-configuring_ssltls_in_jboss_eap-en-us.pdf",
-            "getting_started_with_red_hat_jboss_enterprise_application_platform/red_hat_jboss_enterprise_application_platform-8.0-getting_started_with_red_hat_jboss_enterprise_application_platform-en-us.pdf",
-            "getting_started_with_management_console/red_hat_jboss_enterprise_application_platform-8.0-getting_started_with_management_console-en-us.pdf",
-            "using_jboss_eap_on_openshift_container_platform/red_hat_jboss_enterprise_application_platform-8.0-using_jboss_eap_on_openshift_container_platform-en-us.pdf",
-            "red_hat_jboss_enterprise_application_platform_installation_methods/red_hat_jboss_enterprise_application_platform-8.0-red_hat_jboss_enterprise_application_platform_installation_methods-en-us.pdf",
-            "updating_red_hat_jboss_enterprise_application_platform/red_hat_jboss_enterprise_application_platform-8.0-updating_red_hat_jboss_enterprise_application_platform-en-us.pdf",
-            "performance_tuning_for_red_hat_jboss_enterprise_application_platform/red_hat_jboss_enterprise_application_platform-8.0-performance_tuning_for_red_hat_jboss_enterprise_application_platform-en-us.pdf", 
-            "getting_started_with_developing_applications_for_jboss_eap_deployment/Red_Hat_JBoss_Enterprise_Application_Platform-8.0-Getting_started_with_developing_applications_for_JBoss_EAP_deployment-en-US.pdf",
-            "migration_guide/red_hat_jboss_enterprise_application_platform-8.0-migration_guide-en-us.pdf",
-            "using_the_jboss_server_migration_tool/red_hat_jboss_enterprise_application_platform-8.0-using_the_jboss_server_migration_tool-en-us.pdf",
-            "secure_storage_of_credentials_in_jboss_eap/red_hat_jboss_enterprise_application_platform-8.0-secure_storage_of_credentials_in_jboss_eap-en-us.pdf",
-            "securing_applications_and_management_interfaces_using_an_identity_store/red_hat_jboss_enterprise_application_platform-8.0-securing_applications_and_management_interfaces_using_an_identity_store-en-us.pdf",
-            "securing_applications_and_management_interfaces_using_multiple_identity_stores/red_hat_jboss_enterprise_application_platform-8.0-securing_applications_and_management_interfaces_using_multiple_identity_stores-en-us.pdf",
-            "using_single_sign-on_with_jboss_eap/red_hat_jboss_enterprise_application_platform-8.0-using_single_sign-on_with_jboss_eap-en-us.pdf"  
-        ]
-
-    # TODO, make use of this config guide too if needed
-    docs_config_guide = "https://access.redhat.com/documentation/en-us/red_hat_jboss_enterprise_application_platform/7.4/pdf/configuration_guide/red_hat_jboss_enterprise_application_platform-7.4-configuration_guide-en-us.pdf"
-
     # Download the PDFs if the docs directory is currently empty
-    if not os.listdir(docs_dir): 
-        for doc in docs:
-            response = requests.get(docs_url_prefix + doc, stream=True)
-            pdf_file_name = os.path.basename(doc)   
-            if response.status_code == 200:
-                filepath = os.path.join(docs_dir, pdf_file_name)
-                with open(filepath, 'wb') as pdf_object:
-                    pdf_object.write(response.content)
-                    #print(pdf_file_name)
+    if not os.listdir(docs_dir):
+        with open(docs_path, 'r') as file:
+            for doc in file:
+                doc = doc.rstrip('\n')
+                response = requests.get(doc, stream=True)
+                pdf_file_name = os.path.basename(doc)   
+                if response.status_code == 200:
+                    file_path = os.path.join(docs_dir, pdf_file_name)
+                    with open(file_path, 'wb') as pdf_object:
+                        pdf_object.write(response.content)
+                        #print(pdf_file_name)
 
     
 def createIndex():
@@ -89,8 +70,12 @@ def init_chat_emgine(v_index) :
 
 def main() :
     print("starting....")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--docs_path", '-d', help="Path to a file containing URLs for PDF files to be downloaded and ingested.\
+    Defaults to data/eap8_docs.txt", type=str, default ="data/eap8_docs.txt")
+    args = parser.parse_args()
     if not os.path.isdir(docs_dir):
-        read_documents()
+        read_documents(args.docs_path)
     if not os.path.isdir(storage_dir):
         v_index = createIndex()
     else :
